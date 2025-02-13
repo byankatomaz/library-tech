@@ -40,18 +40,20 @@ model OrderItem {
 }
 
 model Book {
-  id          String    @id @default(uuid())
-  title       String
-  description String?
-  price       Decimal
-  publishedAt DateTime  @default(now())
-  authorId    String
-  categoryId  String
-  author      Author    @relation(fields: [authorId], references: [id])
-  category    Category  @relation(fields: [categoryId], references: [id])
-  stock       Stock?
-  orders      OrderItem[]
+  id            String    @id @default(uuid())
+  title         String
+  description   String?
+  price         Decimal
+  publishedAt   DateTime  @default(now())
+  authorId      String
+  categoryId    String
+  coverImageUrl String?   
+  author        Author    @relation(fields: [authorId], references: [id])
+  category      Category  @relation(fields: [categoryId], references: [id])
+  stock         Stock?
+  orders        OrderItem[]
 }
+
 
 model Stock {
   id          String   @id @default(uuid())
@@ -84,6 +86,6 @@ model Author {
 
 model Category {
   id    String @id @default(uuid())
-  name  String
+  name  String 
   books Book[]
 }
