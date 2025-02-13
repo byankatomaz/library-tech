@@ -1,0 +1,89 @@
+
+
+generator client {
+  provider = "prisma-client-js"
+  seed     = "./seed.ts" 
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  orders    Order[]
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id        String      @id @default(uuid())
+  userId    String
+  total     Decimal
+  createdAt DateTime    @default(now())
+  user      User        @relation(fields: [userId], references: [id])
+  items     OrderItem[]
+}
+
+model OrderItem {
+  id         String  @id @default(uuid())
+  orderId    String
+  bookId     String
+  quantity   Int
+  subtotal   Decimal
+  order      Order   @relation(fields: [orderId], references: [id])
+  book       Book    @relation(fields: [bookId], references: [id])
+}
+
+model Book {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  price       Decimal
+  publishedAt DateTime  @default(now())
+  authorId    String
+  categoryId  String
+  author      Author    @relation(fields: [authorId], references: [id])
+  category    Category  @relation(fields: [categoryId], references: [id])
+  stock       Stock?
+  orders      OrderItem[]
+}
+
+model Stock {
+  id          String   @id @default(uuid())
+  bookId      String   @unique
+  quantity    Int     @default(0)
+  updatedAt   DateTime @updatedAt
+  book        Book    @relation(fields: [bookId], references: [id])
+  movements   StockMovement[]
+}
+
+model StockMovement {
+  id          String    @id @default(uuid())
+  stockId     String
+  type        MovementType
+  quantity    Int
+  createdAt   DateTime  @default(now())
+  stock       Stock     @relation(fields: [stockId], references: [id])
+}
+
+enum MovementType {
+  INCOMING
+  OUTGOING
+}
+
+model Author {
+  id    String @id @default(uuid())
+  name  String
+  books Book[]
+}
+
+model Category {
+  id    String @id @default(uuid())
+  name  String
+  books Book[]
+}
