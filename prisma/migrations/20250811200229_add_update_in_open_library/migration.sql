@@ -1,8 +1,8 @@
 -- CreateEnum
-CREATE TYPE "MovementType" AS ENUM ('INCOMING', 'OUTGOING');
+CREATE TYPE "public"."MovementType" AS ENUM ('INCOMING', 'OUTGOING');
 
 -- CreateTable
-CREATE TABLE "User" (
+CREATE TABLE "public"."User" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
-CREATE TABLE "Order" (
+CREATE TABLE "public"."Order" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "total" DECIMAL(65,30) NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE "Order" (
 );
 
 -- CreateTable
-CREATE TABLE "OrderItem" (
+CREATE TABLE "public"."OrderItem" (
     "id" TEXT NOT NULL,
     "orderId" TEXT NOT NULL,
     "bookId" TEXT NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE "OrderItem" (
 );
 
 -- CreateTable
-CREATE TABLE "Book" (
+CREATE TABLE "public"."Book" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
@@ -42,12 +42,13 @@ CREATE TABLE "Book" (
     "publishedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "authorId" TEXT NOT NULL,
     "categoryId" TEXT NOT NULL,
+    "coverImageUrl" TEXT,
 
     CONSTRAINT "Book_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Stock" (
+CREATE TABLE "public"."Stock" (
     "id" TEXT NOT NULL,
     "bookId" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL DEFAULT 0,
@@ -57,10 +58,10 @@ CREATE TABLE "Stock" (
 );
 
 -- CreateTable
-CREATE TABLE "StockMovement" (
+CREATE TABLE "public"."StockMovement" (
     "id" TEXT NOT NULL,
     "stockId" TEXT NOT NULL,
-    "type" "MovementType" NOT NULL,
+    "type" "public"."MovementType" NOT NULL,
     "quantity" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -68,7 +69,7 @@ CREATE TABLE "StockMovement" (
 );
 
 -- CreateTable
-CREATE TABLE "Author" (
+CREATE TABLE "public"."Author" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
 
@@ -76,7 +77,7 @@ CREATE TABLE "Author" (
 );
 
 -- CreateTable
-CREATE TABLE "Category" (
+CREATE TABLE "public"."Category" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
 
@@ -84,28 +85,28 @@ CREATE TABLE "Category" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Stock_bookId_key" ON "Stock"("bookId");
+CREATE UNIQUE INDEX "Stock_bookId_key" ON "public"."Stock"("bookId");
 
 -- AddForeignKey
-ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."OrderItem" ADD CONSTRAINT "OrderItem_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "public"."Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Book"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."OrderItem" ADD CONSTRAINT "OrderItem_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "public"."Book"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Book" ADD CONSTRAINT "Book_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "Author"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."Book" ADD CONSTRAINT "Book_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "public"."Author"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Book" ADD CONSTRAINT "Book_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."Book" ADD CONSTRAINT "Book_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "public"."Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Stock" ADD CONSTRAINT "Stock_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Book"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."Stock" ADD CONSTRAINT "Stock_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "public"."Book"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_stockId_fkey" FOREIGN KEY ("stockId") REFERENCES "Stock"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."StockMovement" ADD CONSTRAINT "StockMovement_stockId_fkey" FOREIGN KEY ("stockId") REFERENCES "public"."Stock"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

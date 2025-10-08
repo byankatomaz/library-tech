@@ -9,26 +9,27 @@
     "lint": "next lint"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "^6.3.1",
-    "axios": "^1.7.9",
-    "next": "15.1.7",
-    "prisma": "^6.3.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "@prisma/client": "^6.13.0",
+    "next": "15.4.6",
+    "node-fetch": "^3.3.2",
+    "prisma": "^6.13.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@types/node": "^20.17.17",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.1.7",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
+    "eslint-config-next": "15.4.6",
+    "tailwindcss": "^4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5"
   }
 }

@@ -1,80 +1,67 @@
 import { PrismaClient } from "@prisma/client";
-import { registerBooks } from "@/services/openLibrary";
-import { getRandomNumberInRange } from "@/services/randomNumber";
+import fetch from "node-fetch";
 
 const prisma = new PrismaClient();
 
-async function populateBooks(query: string) {
-  try {
-    const books = await registerBooks(query);
+async function main() {
+  const query = "programming"; // Tema de busca
+  const maxResults = 5;
 
-    for (const book of books.slice(0, 20)) {
+  const response = await fetch(
+    `www.google.com`
+  );
 
-      let category = await prisma.category.findFirst({
-        where: { name: query },
-      });
-  
-      if (!category) {
-        category = await prisma.category.create({
-          data: { name: query },
-        });
-      }
-
-      let author = await prisma.author.findFirst({
-        where: { name: book.author },
-      });
-  
-      if (!author) {
-        author = await prisma.author.create({
-          data: { name: book.author },
-        });
-      }
-
-      const bookCreate = await prisma.book.create({
-        data: {
-          title: book.title,
-          description: `Livro sobre ${query}`,
-          price: getRandomNumberInRange(10, 100).toFixed(2),
-          publishedAt: book.publishedYear 
-            ? new Date(`${book.publishedYear}-01-01`) 
-            : new Date(),
-          coverImageUrl: book.coverImageUrl,
-          authorId: author.id,
-          categoryId: category.id,
-        },
-      });
-
-      let stock = await prisma.stock.findFirst({
-        where: { bookId: bookCreate.id },
-      });
-  
-      if (!stock) {
-        stock = await prisma.stock.create({
-          data: { 
-            bookId: bookCreate.id,
-            quantity: getRandomNumberInRange(0, 500)
-           },
-        });
-
-        await prisma.stockMovement.create({
-          data: { 
-            stockId: stock.id,
-            type: "INCOMING",
-            quantity: stock.quantity
-           },
-        });
-      }
-
-      console.log(`✅ Livro inserido: ${book.title}`);
-    }
-
-    console.log("📚 Importação finalizada!");
-  } catch (error) {
-    console.error("❌ Erro ao popular livros:", error);
-  } finally {
-    await prisma.$disconnect();
+  if (!response.ok) {
+    throw new Error(`Erro ao buscar dados: ${response.statusText}`);
   }
+
+  // const data: any = await response.json();
+
+  // for (const item of data.items) {
+  //   const volume = item.volumeInfo;
+
+  //   // Autor
+  //   const authorName = volume.authors?.[0] || "Autor Desconhecido";
+  //   let author = await prisma.author.findFirst({
+  //     where: { name: authorName },
+  //   });
+  //   if (!author) {
+  //     author = await prisma.author.create({ data: { name: authorName } });
+  //   }
+
+  //   // Categoria
+  //   const categoryName = volume.categories?.[0] || "Categoria Desconhecida";
+  //   let category = await prisma.category.findFirst({
+  //     where: { name: categoryName },
+  //   });
+  //   if (!category) {
+  //     category = await prisma.category.create({ data: { name: categoryName } });
+  //   }
+
+  //   // Criar livro
+  //   await prisma.book.create({
+  //     data: {
+  //       title: volume.title || "Título Desconhecido",
+  //       description: volume.description || null,
+  //       price: (Math.random() * 100).toFixed(2) as unknown as any, // valor fictício
+  //       publishedAt: volume.publishedDate
+  //         ? new Date(volume.publishedDate)
+  //         : new Date(),
+  //       authorId: author.id,
+  //       categoryId: category.id,
+  //       coverImageUrl: volume.imageLinks?.thumbnail || null,
+  //     },
+  //   });
+  // }
+
+  console.log("✅ Seed concluído com livros da Google Books API!");
 }
 
-const query = process.argv[2] || "programming";
-populateBooks(query);
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

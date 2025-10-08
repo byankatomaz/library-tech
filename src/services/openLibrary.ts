@@ -1,16 +1,35 @@
-const BASE_URL = "https://openlibrary.org";
+import fetch from "node-fetch";
 
-export const registerBooks = async (query: string) => {
-  const res = await fetch(`${BASE_URL}/search.json?q=${query}`);
-  if (!res.ok) throw new Error("Erro ao buscar livros");
+const GOOGLE_BOOKS_BASE_URL = "https://www.googleapis.com/books/v1/volumes";
 
-  const data = await res.json();
-  return data.docs.map((book: any) => ({
-    title: book.title,
-    author: book.author_name?.join(", ") || "Desconhecido",
-    publishedYear: book.first_publish_year || null,
-    coverImageUrl: book.cover_i 
-      ? `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg` 
-      : null,
-  }));
-};
+export async function fetchBooks(query: string, maxResults = 10) {
+  const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("GOOGLE_BOOKS_API_KEY não configurada no .env");
+  }
+
+  const url = `${GOOGLE_BOOKS_BASE_URL}?q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${apiKey}`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Erro ao buscar livros: ${response.statusText}`);
+  }
+
+  const data: any = await response.json();
+
+  return (
+    data.items?.map((item: any) => {
+      const info = item.volumeInfo || {};
+      return {
+        title: info.title || "",
+        authors: info.authors || [],
+        description: info.description || "",
+        publishedAt: info.publishedDate || "",
+        categories: info.categories || [],
+        language: info.language || "",
+        coverImageUrl: info.imageLinks?.thumbnail || "",
+      };
+    }) || []
+  );
+}
